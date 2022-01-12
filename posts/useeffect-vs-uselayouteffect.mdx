@@ -1,0 +1,79 @@
+---
+title: "useEffect vs useLayoutEffect"
+description: "Ambos fazem basicamente a mesma coisa, mas eles têm aplicações levemente diferentes. Então, eis alguns pontos para levar em consideração ao decidir qual React Hook usar."
+date: "Jan 08, 2022"
+author: "Kent C. Dodds"
+authorUrl: "https://kentcdodds.com/"
+originalTitle: "useEffect vs useLayoutEffect"
+originalUrl: "https://kentcdodds.com/blog/useeffect-vs-uselayouteffect"
+translator: "Vinícius Casarin"
+translatorUrl: "https://www.linkedin.com/in/vinicius-casarin-664315182/"
+keywords:
+  - frontend
+  - react
+  - javascript
+  - react hooks
+---
+
+# useEffect vs useLayoutEffect
+
+Ambos fazem basicamente a mesma coisa, mas eles têm aplicações levemente diferentes.
+Então, eis alguns pontos para levar em consideração ao decidir qual _[React Hook](https://reactjs.org/hooks)_ usar.
+
+## [useEffect](#useeffect)
+
+Esse é o que você vai usar a 99% das vezes. Ao refatorar um _class component_ para utilizar _hooks_,
+você provavelmente irá mover qualquer trecho de código de um **componentDidMount**, **componentDidUpdate**, e **componentWillUnmount** para um
+**useEffect**.
+
+**O ponto de atenção** é que ele roda _depois_ que o react renderiza seu componente
+e garante que seu código não irá bloquear a renderização do browser. Isso se diferencia
+do comportamento em _class components_ onde **componentDidMount** e **componentDidUpdate**
+rodam de forma síncrona após a renderização. Se fazendo mais performático e quase sempre é
+o que você precisa.
+
+No entanto, caso seu código vá alterar o DOM (via uma [Ref](https://pt-br.reactjs.org/docs/refs-and-the-dom.html))
+**e** tal alteração for mudar a aparência do DOM entre o tempo que ele é renderizado e seu código executado,
+**você não deve** usar o **useEffect**. Ou senão, é capaz que o usuário vejam uma tremidinha no seu layout,
+esse é basicamente o único caso que você deve usar o **useLayoutEffect**.
+
+## [useLayoutEffect](#uselayouteffect)
+
+Este roda de forma síncrona imediatamente após o React ter realizado todas as alterações no DOM.
+Pode ser útil se você precisar calcular valores do DOM (como pegar a posição do scroll ou outros estilos de um elemento)
+e alterar o DOM com base nelas, **ou** fazer um re-render síncrono atualizando o _state_.
+
+Quanto ao ciclo de vida, ele funciona da mesma forma que **componentDidMount** e **componentDidUpdate**.
+O código irá rodar assim que o DOM for atualizado, mas antes que o browser consiga mostrar na tela (o
+usuário geralmente não nota uma atualização até que o browser mostre-a).
+
+## [Resumo](#resumo)
+
+- **useLayoutEffect:** Caso você **precise** alterar diretamente o DOM e/ou precise calcular algum valor dele.
+- **useEffect:** Caso você não precise interagir com o DOM.
+
+## [Um caso fora da curva](#um-caso-fora-da-curva)
+
+Uma outra situação em que você talvez precise utilizar o **useLayoutEffect**
+é se você estiver utilizando um valor (como um [Ref](https://pt-br.reactjs.org/docs/refs-and-the-dom.html)) e você
+precisar ter certeza que seu valor esteja atualizado antes que qualquer coisa rode. Por exemplo:
+
+```js
+const ref = React.useRef();
+React.useEffect(() => {
+  ref.current = "Um valor";
+});
+
+// Então, em outro trecho do seu código
+React.useLayoutEffect(() => {
+  console.log(ref.current); // <-- Isso loga o valor antigo, pq roda antes!
+});
+```
+
+Nesse caso, a solução é usar o **useLayoutEffect**.
+
+## [Conclusão](#conclusao)
+
+O comportamento padrão é deixar que as atualizações do browser sejam ditadas pelo DOM
+antes do seu código ser executado. Isso significa que seu código não irá bloquear o browser
+e o usuário verá as alterações mais rápido. Então utilize o `useEffect` na maioria das vezes.

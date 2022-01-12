@@ -1,0 +1,17 @@
+.container {
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid {
+  width: 100%;
+  max-width: 1024px;
+}
+
+.container a {
+  display: flex;
+  gap: 4px;
+}

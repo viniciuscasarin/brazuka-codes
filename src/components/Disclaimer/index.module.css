@@ -1,0 +1,12 @@
+.disclaimer {
+  text-align: left;
+  line-height: 1.75;
+  background-color: #eaeaea;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.disclaimer a {
+  color: var(--main);
+  text-decoration: underline;
+}

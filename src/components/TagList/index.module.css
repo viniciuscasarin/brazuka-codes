@@ -1,0 +1,10 @@
+.tag {
+  background-color: var(--main);
+  padding: 4px 10px;
+  border-radius: 15px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  margin-right: 4px;
+  line-height: 2;
+}
