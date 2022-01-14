@@ -1,6 +1,6 @@
 import Link from "next/link";
 import styles from "./index.module.css";
-import arrow from "../../assets/arrow.svg";
+import Arrow from "../../assets/arrow";
 
 export default function Header() {
   return (
@@ -8,7 +8,7 @@ export default function Header() {
       <div className={styles.grid}>
         <Link href="/" passHref>
           <a>
-            <img src={arrow} alt="Voltar" width={16} height={16} />
+            <Arrow />
             Ver todos os posts
           </a>
         </Link>
