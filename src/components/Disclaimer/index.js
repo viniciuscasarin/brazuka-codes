@@ -12,7 +12,7 @@ export default function FootNotes({
   return (
     <div className={styles.disclaimer}>
       A fim de democratizar o acesso a conteúdo técnico de desenvolvimento em
-      português, este atigo é uma tradução de{" "}
+      português, este artigo é uma tradução de{" "}
       <Link href={originalUrl} passHref>
         <a
           href="https://www.linkedin.com/in/vinicius-casarin-664315182/"
