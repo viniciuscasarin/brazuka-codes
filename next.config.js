@@ -7,6 +7,6 @@ const withMDX = require("@next/mdx")({
 module.exports = withMDX({
   pageExtensions: ["js", "jsx", "mdx"],
   target: "serverless",
-  basePath: isProduction ? "/blog-devptbr" : "",
-  assetPrefix: isProduction ? "/blog-devptbr" : "",
+  basePath: "",
+  assetPrefix: "",
 });
