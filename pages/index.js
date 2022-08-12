@@ -17,12 +17,7 @@ export default function Home({ postsData }) {
 
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Bem-vindo ao{" "}
-          <span>
-            <a href={BLOG_DOMAIN} target="_blank" rel="noopener noreferrer">
-              {BLOG_TITLE}!
-            </a>
-          </span>
+          Bem-vindo ao <span>{BLOG_TITLE}!</span>
         </h1>
 
         <p className={styles.description}>{BLOG_DESCRIPTION}</p>
