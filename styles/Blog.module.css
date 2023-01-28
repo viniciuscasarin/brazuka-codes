@@ -50,9 +50,12 @@
   background-color: #e8e8e8;
   padding: 0 0.5rem;
   border-radius: 0.25rem;
+  font-size: 1rem;
 }
 
 .articleText pre code {
   background-color: inherit;
-  color: inherit;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
 }
