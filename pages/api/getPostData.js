@@ -46,7 +46,6 @@ export async function getAllTagsPath() {
       },
     };
   });
-  return getAllPostsPath();
 }
 
 export async function getPostsMetaData() {
