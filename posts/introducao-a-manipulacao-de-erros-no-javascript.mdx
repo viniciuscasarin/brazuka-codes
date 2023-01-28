@@ -1,0 +1,351 @@
+---
+title: "Introdução a manipulação de erros no JavaScript"
+description: "Se algo pode dar errado, dará errado: normalmente quando o primeiro usuário acessa seu novo sistema."
+date: "Fev 28, 2022"
+author: "Craig Buckler"
+authorUrl: "https://craigbuckler.com/"
+originalTitle: "An Introduction to JavaScript Error Handling"
+originalUrl: "https://blog.openreplay.com/an-introduction-to-javascript-error-handling"
+translator: "Vinícius Casarin"
+translatorUrl: "https://www.linkedin.com/in/vinicius-casarin-664315182/"
+keywords:
+  - javascript
+  - nodejs
+  - deno
+  - frontend
+  - backend
+---
+
+# Introdução a manipulação de erros no JavaScript
+
+Suas aplicações tornam-se mais robustas conforme você ganha experiência com desenvolvimento.
+As técnicas de programação irão evoluir bastante, mas você também aprenderá a considerar os casos extremos.
+Se algo pode dar errado, dará errado: _normalmente quando o primeiro usuário acessa seu novo sistema_.
+
+Alguns erros são possíveis de evitar:
+
+- Um linter de JavaScript ou um bom editor de texto podem encontrar erros sintáticos como palavras erradas ou colchetes faltando.
+- Você pode usar validações para encontrar erros em dados de usuários ou de outros sistemas. Nunca subestime a capacidade do usuário de causar estrago.
+  Você pode estar esperando um número inteiro para representar a idade de alguém, mas o usuário pode acabar deixando o campo em branco,
+  inserir um valor negativo, usar uma fração, ou até mesmo escrever por extenso “vinte e dois”. Lembre-se que validações no server-side são essenciais.
+  Validações no browser-side podem melhorar a experiência no seu app, mas o usuário pode estar utilizando um navegador com o JavaScript desabilitado.
+
+Outros erros em tempo de execução não são evitáveis:
+
+- A internet pode cair.
+- Um servidor sobrecarregado pode demorar demais para responder.
+- Um script ou outro recurso pode não executar.
+- Uma aplicação pode dar erro.
+- O banco de dados pode falhar.
+- O sistema operacional do servidor pode quebrar.
+- A infraestrutura da hospedagem pode cair.
+
+Esses erros podem ser temporários. Você não pode fazer um código que os evite, mas pode antecipar esses problemas,
+tomar ações apropriadas para cada caso e tornar sua aplicação mais resiliente.
+
+## Mostar um erro é seu último recurso
+
+Todos nós já vimos erros em apps.
+
+Alguns são úteis: "O arquivo já existe. Gostaria de sobrescrevê-lo?"
+
+Outros nem tanto: "ERRO 5969"
+
+Você apenas deve mostrar um error após esgotar todas as outras opções.
+
+Alguns erros menos críticos, como não conseguir carregar uma imagem, talvez possam ser ignorados.
+Em outros casos, soluções corretivas devem ser aplicadas. Por exemplo, se não está sendo possível enviar algum dado ao servidor devido a um erro de conexão com a internet,
+armazenar esse dado temporariamente no [IndexedDB](https://developer.mozilla.org/pt-BR/docs/Web/API/IndexedDB_API) ou [localStorage](https://developer.mozilla.org/pt-BR/docs/Web/API/Window/localStorage)
+e tentar enviar novamente depois. Só deve ser necessário exibir um erro ao usuário após algumas tentivas falhas, e que ele esteja correndo o risco de perder esses dados.
+Ainda assim: _garanta que o usuário possa tomar medidas cabíveis_. Ele pode ser capaz de reestabelecer a conexão dele com a internet, mas isso não vai adiantar de nada se o problema for que seu servidor caiu.
+
+## Manipulando erros no JavaScript
+
+Manipular erros no JavaScript é simples, mas geralmente é envolto em mistério e pode se tornar complicado ao considerar o código assíncrono.
+
+Um "erro" é um objeto que você pode usar para criar uma exceção - que pode quebrar o programa se não for capturada e tratada corretamente.
+Você pode [criar um objeto Error](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Error) passando uma menssagem opcional ao contrutor:
+
+```js
+const e = new Error("Algo deu errado!");
+```
+
+<br />
+
+Você também pode escrever `Error` como uma função sem o `new`, será retornado um objeto igual o anterior:
+
+```js
+const e = Error("Algo deu errado!");
+```
+
+<br />
+
+Você também pode passar o nome do arquivo e a linha do erro como parâmetros:
+
+```js
+const e = new Error("Algo deu errado!", "script.js", 99);
+```
+
+<br />
+
+Isso raramente é necessário, pois o padrão é a linha em que você criou o objeto `Error` no arquivo atual.
+
+Quando criado, um objeto `Error` tem as seguintes propriedades que você pode ler e escrever:
+
+- `.name`: o tipo do erro.
+- `.message`: a mensagem do erro.
+
+As seguintes propriedades de leitura/escrita também são suportadas pelo Firefox:
+
+- `.fileName`: o arquivo em que o erro aconteceu.
+- `.lineNumber`: o número da linha onde o erro aconteceu.
+- `.columnNumber`: o número da coluna onde o erro aconteceu.
+- `.stack`: uma `stack trace` - a lista de chamadas de funções feitas até chegar ao erro.
+
+## Tipos de erro
+
+Além do tipo genérico `Error`, o JavaScript também suporta tipos específicos:
+
+- [EvalError](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/EvalError): causado por um `eval()`
+- [RangeError](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RangeError): o valor está fora de um alcance válido
+- [ReferenceError](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/ReferenceError): ocorre ao referencias uma váriavel não existente
+- [SyntaxError](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SyntaxError): sintaxe inválida
+- [TypeError](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/TypeError): o valor não é um tipo válido
+- [URIError](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/URIError): parâmetros inválidos em um `encodeURI()` ou `decodeURI()`
+- [AggregateError](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/AggregateError): vários erros agrupados em um, normalmente gerado ao executar uma operação como `Promise.all()`
+
+O interpretador do JavaScript vai gerar tipos de erros conforme o necessário. Na maioria dos casos, no seu próprio código você usará `Error` ou `TypeError`.
+
+## Lançando uma exceção
+
+Criar um objeto `Error` não faz nada por si só. Você deve usar a instrução `throw` para lançar um error que gera uma exceção:
+
+```js
+throw new Error("Ocorreu um erro!");
+```
+
+<br />
+
+A função `soma()` lança um `TypeError` quando algum dos parâmetros não é um número - o `return` nunca é executado:
+
+```js
+function soma(a, b) {
+  if (isNaN(a) || isNaN(b)) {
+    throw new TypeError("O valor não é um número.");
+  }
+
+  return a + b;
+}
+```
+
+<br />
+
+É mais prático usar o `throw` em objetos `Error`, mas você pode usá-lo em qualquer valor:
+
+```js
+throw "Error string";
+throw 42;
+throw true;
+throw { message: "An error", name: "CustomError" };
+```
+
+<br />
+
+Quando você lança uma exceção, ela sobre na pilha de chamadas - até que seja capturada. Exceções não detectadas vão até o topo da pilha de execução, onde eventualmente o programa irá parar e mostrar uma mensagem no console do DevTools:
+
+```ini
+Uncaught TypeError: O valor não é um número.
+  soma http://localhost:3000/index.js:3
+```
+
+<br />
+
+## Capturando uma exceção
+
+Você pode tratar uma exceção num bloco [try ... catch](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Statements/try...catch)
+
+```js
+try {
+  console.log(soma(1, "a"));
+} catch (err) {
+  console.error(err.message);
+}
+```
+
+<br />
+
+O código dentro de `try{}` é executado, mas quando acontece uma exceção, o bloco `catch{}` recebe o objeto enviado pelo `throw`.
+
+O bloco `catch{}` consegue analizar o erro e agir de acordo:
+
+```js
+try {
+  console.log(soma(1, "a"));
+} catch (err) {
+  if (err instanceof TypeError) {
+    console.error("Tipo errado");
+  } else {
+    console.error(err.message);
+  }
+}
+```
+
+<br />
+
+Opcionalmente, você pode criar um bloco `finally{}` se tiver algum código que precise ser executado independente se ocorrer uma exeção. Isso pode ser útil, por exemplo, para fechar uma conexão com o banco de dados.
+
+```js
+try {
+  console.log(soma(1, "a"));
+  return "try";
+} catch (err) {
+  console.error(err.message);
+  return "catch";
+} finally {
+  // Código sempre executado
+  return "finally";
+}
+```
+
+<br />
+
+Um bloco `try{}` exige, ou um `catch{}`, um `finally{}`, ou ambos.
+
+Note que quando o `finally{}` possui um `return`, ele se torna o retorno para todo o bloco `try .. catch ... finaly`, independentemente de qualquer retorno declarado dentro de `try{}` e `catch{}`.
+
+## Blocos try ... catch aninhados e relançando erros
+
+Uma exceção sobe a pilha de execução e é capturada apenas uma vez pelo bloco `catch{}` mais próximo:
+
+```js
+try {
+  try {
+    console.log(soma(1, "a"));
+  } catch (err) {
+    console.error("Esse catch vai ler o erro", err.message);
+  }
+} catch (err) {
+  console.error("Esse catch não vai ler o erro", err.message);
+}
+```
+
+<br />
+
+Qualquer bloco `catch{}` pode lançar uma nova exceção, que será capturada pelo `catch{}` externo. Você pode enviar o primeiro objeto `Error` para o novo `Error` pela propriedade `cause` na hora de instanciar. Isso torna possível analizar a cadeia de erros.
+
+Ambos blocos `catch{}` vão ser executados, pois o primeiro erro lança outro:
+
+```js
+try {
+  try {
+    console.log(soma(1, "a"));
+  } catch (err) {
+    console.error("Primeiro erro capturado", err.message);
+    throw new Error("Segundo erro", { cause: err });
+  }
+} catch (err) {
+  console.error("Segundo erro capturado", err.message);
+  console.error("Causa do erro:", err.cause.message);
+}
+```
+
+<br />
+
+## Lançando exceções em funções assíncronas
+
+Você não pode capturar uma exceção lançada dentro de um código assíncrono, pois ela será lançada após a execução do bloco `try ... catch`
+
+```js
+function wait(delay = 1000) {
+  setTimeout(() => {
+    throw new Error("Eu nunca sou capturado!");
+  }, delay);
+}
+
+try {
+  wait();
+} catch (err) {
+  // Isso nunca vai ser executado :/
+  console.error("Capturado!", err.message);
+}
+```
+
+<br />
+
+Após um segundo o console mostrará:
+
+```ini
+Uncaught Error: Eu nunca sou capturado!
+  wait http://localhost:3000/:14
+```
+
+<br />
+
+Se você estiver usando um `callback`, a convensão presumida em frameworks e runtimes como Node.js, é retornar um erro como o primeiro parâmetro da função. Isso não lança uma exceção, no entanto você pode faze-lo manualmente quando necessário:
+
+```js
+function wait(delay = 1000, callback) {
+  setTimeout(() => {
+    callback("Eu sou capturado!");
+  }, delay);
+}
+
+wait(1000, (err) => {
+  if (err) {
+    throw new Error(err);
+  }
+});
+```
+
+<br />
+
+No JavaScript moderno, normalmente é melhor retornar uma [Promise](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Promise) ao definir funções assíncronas. Quando um erro ocorre, o [método reject da promise](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Promise/reject) pode retornar um novo `Error` (assim como qualquer outro valor):
+
+```js
+function wait(delay = 1000) {
+  return new Promise((resolve, reject) => {
+    if (isNaN(delay) || delay < 0) {
+      reject(new TypeError("Delay inválido"));
+    } else {
+      setTimeout(() => {
+        resolve(`Aguardamos ${delay} ms`);
+      }, delay);
+    }
+  });
+}
+```
+
+<br />
+
+O [método catch da promise](https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Promise/catch) é executado quando recebe um `delay` inválido para poder lidar com o `Error` retornado:
+
+```js
+// Isso falha - o bloco catch é executado
+wait("x")
+  .then((res) => console.log(res))
+  .catch((err) => console.error(err.message))
+  .finally(() => console.log("Pronto!"));
+```
+
+<br />
+
+Qualquer função que retorna uma `Promise` pode ser chamada por uma função assíncrona usando a instrução `await`. Você pode colocar isso em um bloco `try ... catch` que é executado identicamente ao exemplo `then/catch` acima, mas pode ficar um pouco mais legível:
+
+```js
+// IIFE (função em JavaScript que é executada assim que definida) assíncrona.
+(async () => {
+  try {
+    console.log(await wait("x"));
+  } catch (err) {
+    console.error(err.message);
+  } finally {
+    console.log("Pronto!");
+  }
+})();
+```
+
+<br />
+
+## Erros são inevitáveis
+
+Criar objetos de error e gerar exceções no JavaScript é simples. Reagir de forma apropriade e construir aplicações resilientes é um pouquinho mais difícil! O melhor conselho é: experar o inesperado e lidar com com erros mais cedo possível.
