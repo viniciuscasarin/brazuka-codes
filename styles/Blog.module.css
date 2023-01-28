@@ -45,3 +45,14 @@
 .tagsContainer > span:first-child {
   margin-right: 8px;
 }
+
+.articleText code {
+  background-color: #e8e8e8;
+  padding: 0 0.5rem;
+  border-radius: 0.25rem;
+}
+
+.articleText pre code {
+  background-color: inherit;
+  color: inherit;
+}
