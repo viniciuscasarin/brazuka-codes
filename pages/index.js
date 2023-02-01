@@ -1,26 +1,20 @@
-import Head from "next/head";
 import styles from "../styles/Home.module.css";
 import { getPostsMetaData } from "./api/getPostData";
-import { BLOG_TITLE, BLOG_DESCRIPTION, BLOG_DOMAIN } from "../src/constants";
 import Card from "../src/components/Card";
 import Footer from "../src/components/Footer";
+import Head from '../src/components/Head';
+import SETTINGS from "../core/settings";
 
 export default function Home({ postsData }) {
   return (
     <>
-      <Head>
-        <title>
-          {BLOG_TITLE} - {BLOG_DESCRIPTION}
-        </title>
-        <meta name="description" content={BLOG_DESCRIPTION} />
-      </Head>
-
+      <Head/>
       <main className={styles.main}>
         <h1 className={styles.title}>
-          Bem-vindo ao <span>{BLOG_TITLE}!</span>
+          Bem-vindo ao <span>{SETTINGS.BLOG_NAME}!</span>
         </h1>
 
-        <p className={styles.description}>{BLOG_DESCRIPTION}</p>
+        <p className={styles.description}>{SETTINGS.BLOG_DESCRIPTION}</p>
 
         <div className={styles.grid}>
           {postsData.map((metadata, index) => {

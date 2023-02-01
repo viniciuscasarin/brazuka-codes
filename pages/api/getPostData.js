@@ -73,7 +73,6 @@ export async function getPostsMetaDataByTag(tag) {
     return post.keywords.includes(decodeURIComponent(tag));
   });
 
-  console.log({ tag: encodeURIComponent(tag) });
   return tagPosts;
 }
 

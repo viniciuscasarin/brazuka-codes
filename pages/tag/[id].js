@@ -1,16 +1,15 @@
-import Head from "next/head";
+import Head from "../../src/components/Head";
 import styles from "../../styles/Home.module.css";
 import { getPostsMetaDataByTag, getAllTagsPath } from "../api/getPostData";
 import Header from "../../src/components/Header";
 import Card from "../../src/components/Card";
 import Footer from "../../src/components/Footer";
+import SETTINGS from '../../core/settings';
 
 export default function Tag({ tag, postsData }) {
   return (
     <>
-      <Head>
-        <title>{tag}</title>
-      </Head>
+      <Head title={`[${tag}] - ${SETTINGS.BLOG_NAME}`}/>
       <Header />
       <main className={styles.main}>
         <h1 className={styles.title}>

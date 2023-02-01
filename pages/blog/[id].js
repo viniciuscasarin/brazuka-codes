@@ -1,4 +1,4 @@
-import Head from "next/head";
+import Head from "../../src/components/Head";
 import { MDXRemote } from "next-mdx-remote";
 import { getAllPostsPath, getPostData } from "../api/getPostData";
 import Header from "../../src/components/Header";
@@ -6,6 +6,7 @@ import Footer from "../../src/components/Footer";
 import Disclaimer from "../../src/components/Disclaimer";
 import TagList from "../../src/components/TagList";
 import styles from "../../styles/Blog.module.css";
+import SETTINGS from "../../core/settings";
 
 const components = {
   a: (props) => <a target="_blank" rel="noopener noreferrer" {...props} />,
@@ -26,10 +27,7 @@ export default function Blog({ postMetadata, postContent }) {
 
   return (
     <div>
-      <Head>
-        <title>{title}</title>
-        <meta name="description" content={description} />
-      </Head>
+      <Head title={`${title} - ${SETTINGS.BLOG_NAME}`} description={description}/>
       <Header />
       <div className={styles.article}>
         <div className={styles.articleContent}>
