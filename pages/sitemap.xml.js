@@ -4,7 +4,6 @@ import { getAllTagsPath, getAllPostsPath } from "./api/getPostData";
 function generateSiteMap(paths) {
   return `<?xml version="1.0" encoding="UTF-8"?>
    <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-     <!--We manually set the two URLs we know already-->
      <url>
        <loc>${SETTINGS.BLOG_URL}</loc>
      </url>
