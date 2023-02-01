@@ -1,5 +1,6 @@
 import Head from "../../src/components/Head";
 import { MDXRemote } from "next-mdx-remote";
+
 import { getAllPostsPath, getPostData } from "../api/getPostData";
 import Header from "../../src/components/Header";
 import Footer from "../../src/components/Footer";
@@ -27,7 +28,32 @@ export default function Blog({ postMetadata, postContent }) {
 
   return (
     <div>
-      <Head title={`${title} - ${SETTINGS.BLOG_NAME}`} description={description}/>
+      <Head
+        title={`${title} - ${SETTINGS.BLOG_NAME}`}
+        description={description}
+      >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: `{
+              "@context": "https://schema.org",
+              "@type": "TechArticle",
+              "headline": "${title}",
+              "articleSection": "${keywords.join(", ")}",
+              "abstract": "${description}",
+              "author": [{
+                  "@type": "Person",
+                  "name": "${translator}",
+                  "url": "${translatorUrl}"
+                },{
+                  "@type": "Person",
+                  "name": "${author}",
+                  "url": "${authorUrl}"
+              }]
+            }`,
+          }}
+        />
+      </Head>
       <Header />
       <div className={styles.article}>
         <div className={styles.articleContent}>
